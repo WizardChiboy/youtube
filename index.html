@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather App</title>
+  
+  <style>
+    /* General body styling with gradient background and centered content */
+    body {
+      font-family: sans-serif;
+      background: linear-gradient(to right, #83a4d4, #b6fbff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    /* App container box styling */
+    #app {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 300px;
+    }
+
+    /* Input box styling */
+    input {
+      width: 70%;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+
+    /* Button styling */
+    button {
+      padding: 8px 12px;
+    }
+
+    /* Weather info section styling */
+    .weather {
+      margin-top: 20px;
+    }
+
+    /* Error message styling */
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Weather App container -->
+  <div id="app">
+    <h2> Weather App</h2>
+    <!-- Input for city name -->
+    <input type="text" id="cityInput" placeholder="Enter city">
+    <!-- Search button -->
+    <button id="searchBtn">Search</button>
+    <!-- Weather info display area -->
+    <div class="weather" id="weatherInfo"></div>
+  </div>
+
+  <script>
+    // Replace with your actual OpenWeatherMap API key
+    const apiKey = '28d1f8785dac42de25f7e9672f57efad';
+
+    // Get references to HTML elements
+    const searchBtn = document.getElementById('searchBtn');
+    const cityInput = document.getElementById('cityInput');
+    const weatherInfo = document.getElementById('weatherInfo');
+
+    // Function to fetch and display weather data
+    async function getWeather(city) {
+      try {
+        // Show loading text while fetching
+        weatherInfo.innerHTML = 'Loading...';
+
+        // Fetch weather data from OpenWeatherMap API
+        const res = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+        );
+
+        // If city not found or request fails
+        if (!res.ok) throw new Error('City not found');
+
+        // Parse response JSON
+        const data = await res.json();
+
+        // Get weather icon URL
+        const icon = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+
+        // Display weather info in the weatherInfo div
+        weatherInfo.innerHTML = `
+          <h3>${data.name}, ${data.sys.country}</h3>
+          <img src="${icon}" alt="${data.weather[0].description}">
+          <p><strong>${data.main.temp}°C</strong></p>
+          <p>${data.weather[0].description}</p>
+        `;
+      } catch (err) {
+        // Show error message if something goes wrong
+        weatherInfo.innerHTML = `<p class="error">${err.message}</p>`;
+      }
+    }
+
+    // Event listener: when search button is clicked
+    searchBtn.addEventListener('click', () => {
+      const city = cityInput.value.trim();
+      if (city) {
+        getWeather(city);
+      }
+    });
+
+    // Event listener: when Enter key is pressed in the input
+    cityInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        searchBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>
